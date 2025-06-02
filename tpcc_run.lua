@@ -35,6 +35,10 @@ function other_ware (home_ware)
     return tmp
 end
 
+function added_transaction()
+	print("Q2 sorted")
+end
+
 function new_order()
 
 -- prep work
