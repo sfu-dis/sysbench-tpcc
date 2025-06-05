@@ -31,7 +31,7 @@ function event()
   local max_trx =  sysbench.opt.enable_purge == "yes" and 24 or 23
   local trx_type = sysbench.rand.uniform(1,max_trx)
   if trx_type == 1 then
-	trx="added_transaction"
+	trx="dummy_transaction"
   elseif trx_type <= 10 then
     trx="new_order"
   elseif trx_type <= 20 then

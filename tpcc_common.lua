@@ -153,6 +153,40 @@ function create_tables(drv, con, table_num)
 
    print(string.format("Creating tables: %d\n", table_num))
 
+	-- Q2 MARK
+
+    query = string.format([[
+    CREATE TABLE if NOT EXISTS region%d (                                             
+    r_regionkey SMALLINT NOT NULL,                                              
+    r_name VARCHAR(25),                                                         
+    r_comment VARCHAR(152),                                                     
+    PRIMARY KEY (r_regionkey)                                                   
+    ) %s %s]], table_num, engine_def, extra_table_options)
+    con:query(query)
+      
+    query = string.format([[
+	CREATE TABLE IF NOT EXISTS nation%d (
+	n_nationkey SMALLINT NOT NULL,
+	n_name VARCHAR(25),
+	n_comment VARCHAR(152),
+	n_regionkey SMALLINT NOT NULL,
+	PRIMARY KEY (n_nationkey)
+	) %s %s]], table_num, engine_def, extra_table_options)
+	con:query(query)
+
+	query = string.format([[	
+	CREATE TABLE IF NOT EXISTS supplier%d (
+	su_suppkey INT NOT NULL,
+	su_nationkey SMALLINT NOT NULL,
+	su_name VARCHAR(25),
+	su_address VARCHAR(40),
+	su_phone VARCHAR(15),
+	su_acctbal INT,
+	su_comment VARCHAR(101),
+	PRIMARY KEY (su_suppkey)
+	) %s %s]], table_num, engine_def, extra_table_options)
+	con:query(query)
+
    query = string.format([[
 	CREATE TABLE IF NOT EXISTS warehouse%d (
 	w_id smallint not null,
@@ -332,7 +366,52 @@ function create_tables(drv, con, table_num)
 
    con:query(query)
 
-   con:bulk_insert_init("INSERT INTO item" .. i .." (i_id, i_im_id, i_name, i_price, i_data) values")
+
+-- Q2 MARK #####################################################################
+	con:bulk_insert_init("INSERT INTO region" .. i .." (r_regionkey, r_name, r_comment) values")
+	for j = 1,5 do
+		local r_name = sysbench.rand.string("@@@@@@@@@@@@@@@@@@@@@@@@@")
+		local r_comment = sysbench.rand.string("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+	
+		query = string.format([[(%d, '%s', '%s')]], j, r_name, r_comment)
+		con:bulk_insert_next(query)
+	end
+	con:bulk_insert_done()
+	con:query("CREATE INDEX region_pk"..i.." ON region"..i.." (r_regionkey)")
+	con:query("ALTER TABLE nation"..i.." ADD CONSTRAINT fkey_nation_regionkey"..i.." FOREIGN KEY (n_regionkey) REFERENCES region"..i.." (r_regionkey)")
+--#
+	con:bulk_insert_init("INSERT INTO nation" .. i .." (n_nationkey, n_name, n_comment, n_regionkey) values") 
+	for j = 1, 25 do
+		local n_name = sysbench.rand.string("@@@@@@@@@@@@@@@@@@@@@@@@@")
+		local n_comment = sysbench.rand.string("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+		local n_regionkey = sysbench.rand.uniform(1,5)
+
+		query = string.format([[(%d,'%s','%s',%d)]], j, n_name, n_comment, n_regionkey)
+		con:bulk_insert_next(query)
+	end
+	con:bulk_insert_done()
+	con:query("CREATE INDEX nation_pk"..i.." ON nation"..i.." (n_nationkey)")
+	con:query("ALTER TABLE supplier"..i.." ADD CONSTRAINT fkey_supplier_nationkey"..i.." FOREIGN KEY (su_nationkey) REFERENCES nation"..i.." (n_nationkey)")
+--#
+	con:bulk_insert_init("INSERT INTO supplier" .. i .."(su_suppkey, su_nationkey, su_name, su_address, su_phone, su_acctbal, su_comment) values")
+	for j = 1, 8 * 10000 do
+		local su_nationkey = sysbench.rand.uniform(1,25)
+		local su_name = sysbench.rand.string("@@@@@@@@@@@@@@@@@@@@@@@@@")
+		local su_address = sysbench.rand.string("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+		local su_phone = sysbench.rand.string("###############")
+		local su_acctbal = sysbench.rand.uniform(0, 1000000)
+		local su_comment = sysbench.rand.string("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+
+		query = string.format([[(%d, %d, '%s', '%s', '%s', %d, '%s')]],
+			j, su_nationkey, su_name, su_address, su_phone, su_acctbal, su_comment)
+		con:bulk_insert_next(query)
+	end
+	con:bulk_insert_done()
+	con:query("CREATE INDEX supplier_pk"..i.." ON supplier"..i.." (su_suppkey)")
+
+-- #############################################################################
+
+	con:bulk_insert_init("INSERT INTO item" .. i .." (i_id, i_im_id, i_name, i_price, i_data) values")
    for j = 1 , MAXITEMS do
       local i_im_id = sysbench.rand.uniform(1,10000)
       local i_price = sysbench.rand.uniform_double()*100+1
@@ -611,6 +690,9 @@ function cleanup()
 
    for i = 1, sysbench.opt.tables do
       print(string.format("Dropping tables '%d'...", i))
+      con:query("DROP TABLE IF EXISTS supplier" .. i )
+      con:query("DROP TABLE IF EXISTS nation" .. i )
+      con:query("DROP TABLE IF EXISTS region" .. i )
       con:query("DROP TABLE IF EXISTS history" .. i )
       con:query("DROP TABLE IF EXISTS new_orders" .. i )
       con:query("DROP TABLE IF EXISTS order_line" .. i )
