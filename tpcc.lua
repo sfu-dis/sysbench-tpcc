@@ -24,33 +24,43 @@ require("tpcc_check")
 
 function thread_init()
    drv,con=db_connection_init()
+	print(sysbench.tid)
+end
+
+function payment_new_order_only(times)
+	for i=1, times
+	do
+		trx_type = sysbench.rand.uniform(0, 1)
+		_G[(trx_type == 1) and "new_order" or "payment"]()
+	end
+end
+
+function q2_included()
+	if sysbench.opt.batch_position == 0
+	then
+		q2 = sysbench.rand.uniform(1, sysbench.opt.batch_size)
+		if q2 == 1 then
+			_G["q2_adapted"]()
+		else
+			no = sysbench.rand.uniform(0, 1)
+			_G[(no==1) and "new_order" or "payment"]()
+		end
+	else
+		payment_new_order_only(sysbench.opt.batch_position-1)
+		_G["q2_adapted"]()
+		payment_new_order_only(sysbench.opt.batch_size - sysbench.opt.batch_position)	
+	end
 end
 
 function event()
-  -- print( NURand (1023,1,3000))
-  local max_trx =  sysbench.opt.enable_purge == "yes" and 24 or 23
-  local trx_type = sysbench.rand.uniform(1,max_trx)
-  if trx_type == 1 then
-	trx="dummy_transaction"
-  elseif trx_type <= 10 then
-    trx="new_order"
-  elseif trx_type <= 20 then
-    trx="payment"
-  elseif trx_type <= 21 then
-    trx="orderstatus"
-  elseif trx_type <= 22 then
-    trx="delivery"
-  elseif trx_type <= 23 then
-    trx="stocklevel"
-  elseif trx_type <= 24 then
-    trx="purge"
-  end
-
--- Execute transaction
-   _G[trx]()
-
+	if sysbench.opt.include_q2 then
+		q2_included()
+	else
+		payment_new_order_only(sysbench.opt.batch_size)
+	end
 end
 
+--##############################################################################
 function sysbench.hooks.before_restart_event(err)
   con:query("ROLLBACK")
 end

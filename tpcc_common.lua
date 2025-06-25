@@ -43,6 +43,12 @@ CUST_PER_DIST=3000
 
 -- Command line options
 sysbench.cmdline.options = {
+   include_q2 =
+      {"Include or not the q2 query", false},
+   batch_size =
+	  {"Batch of queries size", 10},
+   batch_position =
+	  {"Position of q2 in the batch", 0},
    scale =
       {"Scale factor (warehouses)", 100},
    tables =
@@ -394,7 +400,7 @@ function create_tables(drv, con, table_num)
 	con:query("ALTER TABLE supplier"..i.." ADD CONSTRAINT fkey_supplier_nationkey"..i.." FOREIGN KEY (su_nationkey) REFERENCES nation"..i.." (n_nationkey)")
 --#
 	con:bulk_insert_init("INSERT INTO supplier" .. i .."(su_suppkey, su_nationkey, su_name, su_address, su_phone, su_acctbal, su_comment) values")
-	for j = 1, 8 * 10000 do
+	for j = 1, 8 * sysbench.opt.scale do
 		local su_nationkey = sysbench.rand.uniform(1,25)
 		local su_name = sysbench.rand.string("@@@@@@@@@@@@@@@@@@@@@@@@@")
 		local su_address = sysbench.rand.string("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
@@ -425,6 +431,8 @@ function create_tables(drv, con, table_num)
 		 
    end
    con:bulk_insert_done()
+
+
 
     print(string.format("Adding indexes %d ... \n", i))
     con:query("CREATE INDEX idx_customer"..i.." ON customer"..i.." (c_w_id,c_d_id,c_last,c_first)")
@@ -502,7 +510,6 @@ function load_tables(drv, con, warehouse_num)
 	  --con:query("SET autocommit=1")
 
    print(string.format("loading tables: %d for warehouse: %d\n", table_num, warehouse_num))
-
     con:bulk_insert_init("INSERT INTO warehouse" .. table_num .. 
 	" (w_id, w_name, w_street_1, w_street_2, w_city, w_state, w_zip, w_tax, w_ytd) values")
 
@@ -529,7 +536,6 @@ function load_tables(drv, con, warehouse_num)
    con:bulk_insert_done()
 
 -- CUSTOMER TABLE
-
    con:bulk_insert_init("INSERT INTO customer" .. table_num .. [[
 	  (c_id, c_d_id, c_w_id, c_first, c_middle, c_last, c_street_1, c_street_2, c_city, c_state, c_zip, 
 	   c_phone, c_since, c_credit, c_credit_lim, c_discount, c_balance, c_ytd_payment, c_payment_cnt, c_delivery_cnt, 
@@ -566,7 +572,6 @@ function load_tables(drv, con, warehouse_num)
    con:bulk_insert_done()
 
 -- HISTORY TABLE
-
    con:bulk_insert_init("INSERT INTO history" .. table_num .. [[
 	  (h_c_id, h_c_d_id, h_c_w_id, h_d_id, h_w_id, h_date, h_amount, h_data) values]])
 
@@ -595,7 +600,6 @@ function load_tables(drv, con, warehouse_num)
         local j = math.random(i, 3000)
         tab[i], tab[j] = tab[j], tab[i]
     end
-
    con:bulk_insert_init("INSERT INTO orders" .. table_num .. [[
 	  (o_id, o_d_id, o_w_id, o_c_id, o_entry_d, o_carrier_id, o_ol_cnt, o_all_local) values]])
 
@@ -620,7 +624,6 @@ function load_tables(drv, con, warehouse_num)
    con:bulk_insert_done()
 
 -- STOCK table
-
    con:bulk_insert_init("INSERT INTO stock" .. table_num .. 
 	" (s_i_id, s_w_id, s_quantity, s_dist_01, s_dist_02, s_dist_03, s_dist_04, s_dist_05, s_dist_06, "..
         " s_dist_07, s_dist_08, s_dist_09, s_dist_10, s_ytd, s_order_cnt, s_remote_cnt, s_data) values")
@@ -644,9 +647,7 @@ function load_tables(drv, con, warehouse_num)
 
    end 
    con:bulk_insert_done()
-
    con:query(string.format("INSERT INTO new_orders%d (no_o_id, no_d_id, no_w_id) SELECT o_id, o_d_id, o_w_id FROM orders%d WHERE o_id>2100 and o_w_id=%d", table_num, table_num, warehouse_num))
-
    con:bulk_insert_init("INSERT INTO order_line" .. table_num .. [[
 	  (ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, ol_supply_w_id, ol_delivery_d, 
            ol_quantity, ol_amount, ol_dist_info ) values]])
@@ -676,6 +677,7 @@ function load_tables(drv, con, warehouse_num)
 --   	con:query("SET @trx = (SELECT @@global.innodb_flush_log_at_trx_commit=0)")
 --   	con:query("SET GLOBAL innodb_flush_log_at_trx_commit=@trx")
    end
+
 
 end
 
