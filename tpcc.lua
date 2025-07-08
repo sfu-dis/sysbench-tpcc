@@ -27,36 +27,57 @@ function thread_init()
 	print(sysbench.tid)
 end
 
-function payment_new_order_only(times)
-	for i=1, times
-	do
-		trx_type = sysbench.rand.uniform(0, 1)
-		_G[(trx_type == 1) and "new_order" or "payment"]()
-	end
+
+function payment_new_order()
+	trx_type = sysbench.rand.uniform(0, 1)
+	_G[(trx_type == 1) and "new_order" or "payment"]()
 end
 
-function q2_included()
-	if sysbench.opt.batch_position == 0
+function event_aux()
+	if sysbench.tid == 1 and sysbench.opt.include_q2
 	then
-		q2 = sysbench.rand.uniform(1, sysbench.opt.batch_size)
-		if q2 == 1 then
-			_G["q2_adapted"]()
-		else
-			no = sysbench.rand.uniform(0, 1)
-			_G[(no==1) and "new_order" or "payment"]()
-		end
-	else
-		payment_new_order_only(sysbench.opt.batch_position-1)
 		_G["q2_adapted"]()
-		payment_new_order_only(sysbench.opt.batch_size - sysbench.opt.batch_position)	
+	else
+		payment_new_order()
 	end
 end
 
 function event()
-	if sysbench.opt.include_q2 then
-		q2_included()
+	if GCOUNTER == nil
+	then
+		GCOUNTER = 1
+	end
+
+	if sysbench.opt.batch_position == 0 and GPOS == nil
+	then
+		GPOS = sysbench.rand.uniform(1, sysbench.opt.batch_size)
+	end
+
+	if sysbench.opt.include_q2
+	then
+		if sysbench.opt.batch_position == 0 and GCOUNTER == GPOS
+		then
+			_G["q2_adapted"]()
+		elseif GCOUNTER == sysbench.opt.batch_position
+		then
+			_G["q2_adapted"]()
+		else
+			payment_new_order()
+		end
 	else
-		payment_new_order_only(sysbench.opt.batch_size)
+		payment_new_order()
+	end
+
+
+	if GCOUNTER == sysbench.opt.batch_size
+	then
+		GCOUNTER = 1
+		if sysbench.opt.batch_position == 0
+		then
+			GPOS = sysbench.rand.uniform(1, sysbench.opt.batch_size)
+		end
+	else
+		GCOUNTER = GCOUNTER + 1	
 	end
 end
 
