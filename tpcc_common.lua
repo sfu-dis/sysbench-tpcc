@@ -43,6 +43,8 @@ CUST_PER_DIST=3000
 
 -- Command line options
 sysbench.cmdline.options = {
+	thread_file = 
+		{"File to write each thread delay times", ""},
    include_q2 =
       {"Include or not the q2 query", false},
    batch_size =

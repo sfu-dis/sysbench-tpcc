@@ -1,1 +1,4 @@
-results/*
+results/exclusiveNewtime
+results/exclusiveWh
+results/generic_threads
+results/specialist_thread

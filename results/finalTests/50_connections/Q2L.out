@@ -1,0 +1,137 @@
+sysbench 1.0.20 (using system LuaJIT 2.1.0-beta3)
+
+Running the test with following options:
+Number of threads: 50
+Initializing random number generator from current time
+
+
+Initializing worker threads...
+
+DB SCHEMA public
+8
+DB SCHEMA public
+9
+DB SCHEMA public
+0
+DB SCHEMA public
+4
+DB SCHEMA public
+DB SCHEMA public
+1
+2
+DB SCHEMA public
+3
+DB SCHEMA public
+DB SCHEMA public
+10
+DB SCHEMA public
+5
+6
+DB SCHEMA public
+11
+DB SCHEMA public
+14
+DB SCHEMA public
+15
+DB SCHEMA public
+12
+DB SCHEMA public
+7
+DB SCHEMA public
+13DB SCHEMA public
+
+21
+DB SCHEMA public
+20
+DB SCHEMA public
+24
+DB SCHEMA public
+17
+DB SCHEMA public
+22
+DB SCHEMA public
+27
+DB SCHEMA public
+18
+DB SCHEMA public
+16
+DB SCHEMA public
+19DB SCHEMA public
+28
+
+DB SCHEMA public
+32
+DB SCHEMA public
+29
+DB SCHEMA public
+30DB SCHEMA public
+
+38
+DB SCHEMA public
+25
+DB SCHEMA public
+39DB SCHEMA public
+
+41
+DB SCHEMA public
+23
+DB SCHEMA public
+26
+DB SCHEMA public
+37
+DB SCHEMA public
+33
+DB SCHEMA public
+43
+DB SCHEMA public
+34
+DB SCHEMA public
+44
+DB SCHEMA public
+47
+DB SCHEMA public
+48
+DB SCHEMA public
+31
+DB SCHEMA public
+45
+DB SCHEMA public
+49
+DB SCHEMA public
+46
+DB SCHEMA public
+35
+DB SCHEMA public
+42
+DB SCHEMA public
+40
+DB SCHEMA public
+36
+Threads started!
+
+SQL statistics:
+    queries performed:
+        read:                            11645
+        write:                           11818
+        other:                           2000
+        total:                           25463
+    transactions:                        1000   (2.37 per sec.)
+    queries:                             25463  (60.33 per sec.)
+    ignored errors:                      4      (0.01 per sec.)
+    reconnects:                          0      (0.00 per sec.)
+
+General statistics:
+    total time:                          422.0819s
+    total number of events:              1000
+
+Latency (ms):
+         min:                                    1.63
+         avg:                                20795.35
+         max:                               211346.36
+         95th percentile:                   100000.00
+         sum:                             20795349.19
+
+Threads fairness:
+    events (avg/stddev):           20.0000/0.00
+    execution time (avg/stddev):   415.9070/2.10
+

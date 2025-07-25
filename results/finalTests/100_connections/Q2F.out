@@ -1,0 +1,237 @@
+sysbench 1.0.20 (using system LuaJIT 2.1.0-beta3)
+
+Running the test with following options:
+Number of threads: 100
+Initializing random number generator from current time
+
+
+Initializing worker threads...
+
+DB SCHEMA public
+3
+DB SCHEMA public
+5
+DB SCHEMA public
+1
+DB SCHEMA public
+6
+DB SCHEMA public
+DB SCHEMA public
+DB SCHEMA public
+7
+0
+4
+DB SCHEMA public
+2
+DB SCHEMA public
+9
+DB SCHEMA public
+13
+DB SCHEMA public
+18
+DB SCHEMA public
+8
+DB SCHEMA public
+DB SCHEMA public
+14
+10
+DB SCHEMA public
+15
+DB SCHEMA public
+12
+DB SCHEMA public
+11
+DB SCHEMA public
+16
+DB SCHEMA public
+17
+DB SCHEMA public
+20
+DB SCHEMA public
+DB SCHEMA public
+19
+22
+DB SCHEMA public
+23
+DB SCHEMA public
+27
+DB SCHEMA public
+DB SCHEMA public
+25
+26
+DB SCHEMA public
+21
+DB SCHEMA public
+28
+DB SCHEMA public
+29
+DB SCHEMA public
+34
+DB SCHEMA public
+DB SCHEMA public
+33
+30
+DB SCHEMA public
+35
+DB SCHEMA public
+31
+DB SCHEMA public
+24
+DB SCHEMA public
+43
+DB SCHEMA public
+36
+DB SCHEMA public
+51
+DB SCHEMA public
+32
+DB SCHEMA public
+39
+DB SCHEMA public
+44
+DB SCHEMA public
+37
+DB SCHEMA public
+DB SCHEMA public
+46
+DB SCHEMA public
+40
+42
+DB SCHEMA public
+38
+DB SCHEMA public
+48
+DB SCHEMA public
+49
+DB SCHEMA public
+41
+DB SCHEMA public
+52
+DB SCHEMA public
+DB SCHEMA public
+58
+45
+DB SCHEMA public
+55
+DB SCHEMA public
+53
+DB SCHEMA public
+54
+DB SCHEMA public
+50
+DB SCHEMA public
+DB SCHEMA public
+47
+57
+DB SCHEMA public
+60
+DB SCHEMA public
+56
+DB SCHEMA public
+61
+DB SCHEMA public
+59
+DB SCHEMA public
+65
+DB SCHEMA public
+83
+DB SCHEMA public
+DB SCHEMA public
+73
+68
+DB SCHEMA public
+70
+DB SCHEMA public
+72
+DB SCHEMA public
+63
+DB SCHEMA public
+76
+DB SCHEMA public
+71
+DB SCHEMA public
+67
+DB SCHEMA public
+77
+DB SCHEMA public
+90
+DB SCHEMA public
+89
+DB SCHEMA public
+DB SCHEMA public
+66
+DB SCHEMA publicDB SCHEMA public
+80
+87
+74
+
+DB SCHEMA public
+91
+DB SCHEMA public
+93
+DB SCHEMA public
+79
+DB SCHEMA public
+64
+DB SCHEMA public
+81
+DB SCHEMA public
+86
+DB SCHEMA public
+75
+DB SCHEMA public
+92
+DB SCHEMA public
+94
+DB SCHEMA public
+84
+DB SCHEMA public
+96
+DB SCHEMA public
+69
+DB SCHEMA public
+95
+DB SCHEMA public
+DB SCHEMA public
+88
+85
+DB SCHEMA public
+99DB SCHEMA public
+98
+DB SCHEMA public
+82
+
+DB SCHEMA public
+62
+DB SCHEMA public
+DB SCHEMA public
+78
+97
+Threads started!
+
+SQL statistics:
+    queries performed:
+        read:                            13967
+        write:                           14132
+        other:                           2485
+        total:                           30584
+    transactions:                        1250   (1.53 per sec.)
+    queries:                             30584  (37.33 per sec.)
+    ignored errors:                      9      (0.01 per sec.)
+    reconnects:                          0      (0.00 per sec.)
+
+General statistics:
+    total time:                          819.1853s
+    total number of events:              1250
+
+Latency (ms):
+         min:                                    1.81
+         avg:                                56849.94
+         max:                               406879.93
+         95th percentile:                   100000.00
+         sum:                             71062419.74
+
+Threads fairness:
+    events (avg/stddev):           12.5000/3.57
+    execution time (avg/stddev):   710.6242/53.24
+

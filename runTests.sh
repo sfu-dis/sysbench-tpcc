@@ -1,51 +1,51 @@
 #! /bin/bash
-TIME=900
-conn=100
+# This script is a good example of scheduling differente tests with sysbench,
 
 # Connection flags
 PGFLAGS="--db-driver=pgsql --pgsql-host=localhost --pgsql-port=3333 --pgsql-user=sbtest --pgsql-password=sbtest --pgsql-db=sf100"
 
-XTRAFLAGS="--forced-shutdown=0"
+CONN=100						# Number of threads
+OUTDIR="results/finalTests"		# Destination files
+
+# Flags for all tests
+COMMONFLAGS="${PGFLAGS} --batch_size=10 --threads=${CONN}" 
+
 # Creates the dir
-[[ ! -d results ]] && mkdir results
+[[ ! -d ${OUTDIR} ]] && mkdir ${OUTDIR}
 
-# Outer loop for number of connections
 # Creates a subdir to that number of connections
-[[ ! -d results/${conn}_connections ]] && mkdir results/${conn}_connections
-	
-# NO Q2 test
-./tpcc.lua ${PGFLAGS} --threads=${conn} --time=${TIME} run \
-> results/${conn}_connections/NOQ2.out
-echo "${conn} Connections no Q2"
+[[ ! -d ${OUTDIR}/${CONN}_connections ]] && mkdir ${OUTDIR}/${CONN}_connections \
+&& mkdir ${OUTDIR}/${CONN}_connections/threads \
+&& mkdir ${OUTDIR}/${CONN}_connections/threads/NOQ2 \
+&& mkdir ${OUTDIR}/${CONN}_connections/threads/Q2{R,F,L}
 
+	
+# Run new order and payment transactions only
+./tpcc.lua \
+	${COMMONFLAGS} \
+	--time=10 \
+	--thread_file=${OUTDIR}/${CONN}_connections/threads/NOQ2/time_thread run \
+	> ${OUTDIR}/${CONN}_connections/NOQ2.out
+
+echo "${CONN} Connections no Q2"
+sleep 60 # Needed because postgres takes some time to close the created connections
+
+# 10% of queries are Q2 and their position in batches of 10 is random
+./tpcc.lua \
+	${COMMONFLAGS} \
+	--time=600 \
+	--thread_file=${OUTDIR}/${CONN}_connections/threads/Q2R/time_thread \
+	--include_q2 run \
+	> ${OUTDIR}/${CONN}_connections/Q2R.out
+echo "${CONN} Connections with Q2 at random"
 sleep 60
 
-# Inner loop for size of the batch
-for batch_size in 10 100 1000
-do
-	# Q2 on the first position
-	./tpcc.lua ${PGFLAGS} ${XTRAFLAGS} --threads=${conn} --time=${TIME} --batch_size=${batch_size} --include_q2 --batch_position=1 run \
-	> results/${conn}_connections/${batch_size}_1stPosition.out
-	echo "${conn} Connections ${batch_size} batch and Q2 in first"
-		
-	sleep 60
+./tpcc.lua ${COMMONFLAGS} --time=600 --batch_position=1 --thread_file=${OUTDIR}/${CONN}_connections/threads/Q2F/time_thread --include_q2 run \
+> ${OUTDIR}/${CONN}_connections/Q2F.out
+echo "${CONN} Connections with Q2 at first"
+sleep 60
 
-	# Q2 at the middle of the batch
-	./tpcc.lua ${PGFLAGS} ${XTRAFLAGS} --threads=${conn} --time=${TIME} --batch_size=${batch_size} --include_q2 --batch_position=$((batch_size/2)) run \
-	> results/${conn}_connections/${batch_size}_halfPosition.out
-	echo "${conn} Connections ${batch_size} batch and Q2 halfway"
-
-	sleep 60
-	
-	# Q2 at the end
-	./tpcc.lua ${PGFLAGS} ${XTRAFLAGS} --threads=${conn} --time=${TIME} --batch_size=${batch_size} --include_q2 --batch_position=${batch_size} run \
-	> results/${conn}_connections/${batch_size}_lastPosition.out
-	echo "${conn} Connections ${batch_size} batch and Q2 at last"
-
-	sleep 60
-
-	# Q2 being selected at random (1/batch_size probability)
-	./tpcc.lua ${PGFLAGS} ${XTRAFLAGS} --threads=${conn} --time=${TIME} --batch_size=${batch_size} --include_q2 run \
-	> results/${conn}_connections/${batch_size}_randomPosition.out
-	echo "${conn} Connections ${batch_size} batch and Q2 at random"
-done
+./tpcc.lua ${COMMONFLAGS} --time=600 --batch_position=10 --thread_file=${OUTDIR}/${CONN}_connections/threads/Q2L/time_thread --include_q2 run \
+> ${OUTDIR}/${CONN}_connections/Q2L.out
+echo "${CONN} Connections with Q2 at last"
+sleep 60

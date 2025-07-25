@@ -73,7 +73,8 @@ function new_order()
 -- prep work
 
     local table_num = sysbench.rand.uniform(1, sysbench.opt.tables)
-    local w_id = sysbench.rand.uniform(1, sysbench.opt.scale) -- HERE
+    -- local w_id = sysbench.rand.uniform(1, sysbench.opt.scale) -- HERE
+	local w_id = sysbench.tid + 1
     local d_id = sysbench.rand.uniform(1, DIST_PER_WARE)
     local c_id = NURand(1023, 1, CUST_PER_DIST)
 
@@ -265,7 +266,8 @@ function payment()
 -- prep work
 
     local table_num = sysbench.rand.uniform(1, sysbench.opt.tables)
-    local w_id = sysbench.rand.uniform(1, sysbench.opt.scale)
+    --local w_id = sysbench.rand.uniform(1, sysbench.opt.scale)
+	local w_id = sysbench.tid + 1
     local d_id = sysbench.rand.uniform(1, DIST_PER_WARE)
     local c_id = NURand(1023, 1, CUST_PER_DIST)
     local h_amount = sysbench.rand.uniform(1,5000)
